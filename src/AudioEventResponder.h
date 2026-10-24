@@ -168,7 +168,11 @@ class AudioEventResponder : public EventResponder
 	
   protected:
 	static bool disableInterrupts() {
-#if !defined(BUILD_FOR_LINUX)
+#if defined(TEENSY_AUDIO_CIRCLE)
+		bool enabled = !(audio_lock_flags() & AUDIO_LOCK_IRQOFF);
+		__disable_irq();
+		return enabled;
+#elif !defined(BUILD_FOR_LINUX)
 		uint32_t primask;
 		__asm__ volatile("mrs %0, primask\n" : "=r" (primask)::);
 		__disable_irq();		
